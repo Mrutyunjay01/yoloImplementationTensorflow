@@ -1,5 +1,8 @@
 from Utils.convFixedPadding import conv2D_fiexed_padding
-import tensorflow
+from Utils.batch_norm import batchNorm
+import tensorflow as tf
+
+_LEAKY_RELU = 0.1
 
 
 def darknet53_residualBlock(inputs, filters, training, data_format, strides):
@@ -13,5 +16,16 @@ def darknet53_residualBlock(inputs, filters, training, data_format, strides):
     :param strides: strides
     :return: residual block constructor
     """
-    
+    shortcuts = inputs
+
+    inputs = conv2D_fiexed_padding(inputs,
+                                   filters=filters,
+                                   kernel_size=1,
+                                   strides=strides,
+                                   data_format=data_format)
+    inputs = batchNorm(inputs, training=training, data_format=data_format)
+    inputs = tf.nn.leaky_relu(inputs, alpha=_LEAKY_RELU)
+    inputs += shortcuts
+
+    return inputs
     pass
